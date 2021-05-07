@@ -1,0 +1,6 @@
+# library(raster)
+# nga <- getData('GADM' , country="NGA", level=0)
+# clim <- getData('worldclim', var='bio', res=0.5, lon = 0, lat = 2)
+# # plot(climate$bio1, main="Annual Mean Temperature")
+# srtm <- getData('SRTM', lon=2, lat=10)
+# plot(srtm)
