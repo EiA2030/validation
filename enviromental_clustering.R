@@ -3,8 +3,8 @@ library(osmdata)
 library(sf)
 library(terra)
 # Oyo State
-oyo <- opq(bbox = 'Oyo NG', timeout = 25*10) %>%
-  add_osm_feature(key = 'name', value = "Oyo", value_exact = T) %>%
+ebonyi <- opq(bbox = 'Ebonyi NG', timeout = 25*10) %>%
+  add_osm_feature(key = 'name', value = "Ebonyi", value_exact = T) %>%
   add_osm_feature(key = 'admin_level', value = "4", value_exact = T) %>%
   osmdata_sf()
 # Osun State
@@ -42,35 +42,42 @@ plot(terra::mask(terra::crop(srtm, pol, snap = 'in'), pol), main="Elevation (m)"
 plot(pol, add = T)
 
 # SoilGrids data
-source('/media/TRANSFORM-EGB/eia2030/TRANSFORM2030_SourceData/source_data/R/soilgrids250_download.R')
-soilSOC.nga <- soilgrids250_data(par = "soc", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/soc/')
+source('soilgrids.R')
+# soilSOC.nga <- soilgrids250_data(par = "soc", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/soc/')
 plot(soilSOC.nga)
-# soilN.nga <- soilgrids250_data(par = "nitrogen", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/nitro/')
-# soilPH.nga <- soilgrids250_data(par = "phh2o", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/ph/')
-# soilCEC.nga <- soilgrids250_data(par = "cec", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/cec/')
+soilN.nga <- soilgrids250_data(par = "nitrogen", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/nitro/')
+soilPH.nga <- soilgrids250_data(par = "phh2o", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/ph/')
+soilCEC.nga <- soilgrids250_data(par = "cec", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/cec/')
 # soilSand.nga <- soilgrids250_data(par = "sand", depth = "0-5", xmin = 2, ymin = 4, xmax = 8, ymax = 10, path = 'data/soil/sand/')
 
 
 
 r.scale <- function(x){(x-raster::cellStats(x, "min"))/(raster::cellStats(x, "max")-raster::cellStats(x, "min"))}
-kluster <- raster::stack(terra::crop(r.scale(raster::raster(clim$bio1_26)),as(pol, 'Spatial')),
-                         terra::crop(r.scale(raster::raster(clim$bio12_26)),as(pol, 'Spatial')),
-                         terra::crop(r.scale(raster::raster(clim$bio15_26)),as(pol, 'Spatial')),
-                         terra::crop(r.scale(raster::raster(clim$bio16_26)),as(pol, 'Spatial')),
-                         terra::crop(r.scale(terra::resample(raster::raster(srtm),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
-                         terra::crop(r.scale(terra::resample(raster::raster(soilSOC.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial'))
+kluster <- raster::stack(terra::crop(r.scale(raster::raster(terra::crop(clim$bio1_26, as(pol, 'Spatial')))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::crop(clim$bio12_26, as(pol, 'Spatial')))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::crop(clim$bio15_26, as(pol, 'Spatial')))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::crop(clim$bio16_26, as(pol, 'Spatial')))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::resample(terra::crop(srtm, as(pol, 'Spatial')), clim$bio1_26, 'bilinear'))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::resample(terra::crop(soilSOC.nga, as(pol, 'Spatial')), clim$bio1_26, 'near'))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::resample(terra::crop(soilN.nga, as(pol, 'Spatial')), clim$bio1_26, 'near'))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::resample(terra::crop(soilPH.nga, as(pol, 'Spatial')), clim$bio1_26, 'near'))), as(pol, 'Spatial')),
+                         terra::crop(r.scale(raster::raster(terra::resample(terra::crop(soilCEC.nga, as(pol, 'Spatial')), clim$bio1_26, 'near'))), as(pol, 'Spatial')))
+                         
+                         # terra::crop(r.scale(raster::raster(clim$bio12_26)),as(pol, 'Spatial')),
+                         # terra::crop(r.scale(raster::raster(clim$bio15_26)),as(pol, 'Spatial')),
+                         # terra::crop(r.scale(raster::raster(clim$bio16_26)),as(pol, 'Spatial')),
+                         # terra::crop(r.scale(terra::resample(raster::raster(srtm),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
+                         # terra::crop(r.scale(terra::resample(raster::raster(soilSOC.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
                          # terra::crop(r.scale(terra::resample(raster::raster(soilN.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
                          # terra::crop(r.scale(terra::resample(raster::raster(soilPH.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
-                         # terra::crop(r.scale(terra::resample(raster::raster(soilCEC.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')),
-                         # terra::crop(r.scale(terra::resample(raster::raster(soilSand.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial'))
-                         )
-kluster <- stackApply(kluster, nlayers(kluster), fun = sum)
-nr <- getValues(kluster)
+                         # terra::crop(r.scale(terra::resample(raster::raster(soilCEC.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')))
+# terra::crop(r.scale(terra::resample(raster::raster(soilSand.nga),raster::raster(clim$bio1_26),'ngb')),as(pol, 'Spatial')))
+kluster.k <- stackApply(kluster, nlayers(kluster), fun = sum)
+nr <- getValues(kluster.k)
 set.seed(99)
-kmncluster <- kmeans(na.omit(nr), centers = 5, iter.max = 500, nstart = 5, algorithm="Lloyd")
+kmncluster <- kmeans(na.omit(nr), centers = 10, iter.max = 500, nstart = 5, algorithm="Lloyd")
 knr <- setValues(kluster, kmncluster$cluster)
 mycolor <- c("#fef65b","#ff0000", "#daa520","#0000ff","#0000ff","#00ff00","#cbbeb5",
-             "#c3ff5b", "#ff7373", "#00ff00", "#808080")
-plot(mask(knr,as(nga, 'Spatial')), main = 'Agro-Environmental Clusters (K-means)', col = mycolor )
-plot(nga,add=T)
-
+             "#c3ff5b", "#ff7373", "#00ff00")
+plot(mask(knr$layer.1,as(pol, 'Spatial')), main = 'Agro-Environmental Clusters (K-means)', col = mycolor)
+plot(pol,add=T)
