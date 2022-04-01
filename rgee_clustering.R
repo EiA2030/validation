@@ -1,4 +1,4 @@
-envKlusters <- function(aoi, user){
+envKlusters <- function(aoi, user, gcs.bucket){
   pol <- terra::vect(aoi)
   pol <- terra::project(pol,'EPSG:4326')
   xmin <- terra::ext(pol)[1]
@@ -133,7 +133,7 @@ envKlusters <- function(aoi, user){
   result <- klusterKW$cluster(clusterer)
   
   # Export results
-  task_img <- ee_image_to_gcs(result, bucket = 'iita_transform_bucket', fileFormat = 'GEO_TIFF', region = geom, crs = 'EPSG:4326', scale = 1000, fileNamePrefix = paste('test_deleteme_', sep = ''))
+  task_img <- ee_image_to_gcs(result, bucket = gcs.bucket, fileFormat = 'GEO_TIFF', region = geom, crs = 'EPSG:4326', scale = 1000, fileNamePrefix = paste('test_deleteme_', sep = ''))
   task_img$start()
   ee_monitoring(task_img)
   tmp <- tempdir()
