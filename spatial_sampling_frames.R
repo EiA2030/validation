@@ -7,6 +7,7 @@ zoning <- function(shape = NULL, gee.user = NULL, gcs.bucket = NULL){
   # Create a temporal output directory
   path <- tempdir()
   # Download input data to temporal directory
+  source("https://raw.githubusercontent.com/EiA2030/source_data/main/R/get_geeData.R")
   download.vars(aoi = shape, user = gee.user, gcs.bucket = gcs.bucket, dest.path = path)
   
   # Format input AOI
