@@ -1,4 +1,4 @@
-zoning <- function(shape = NULL, gee.user = NULL, gcs.bucket = NULL, dest.path = NULL){
+zoning <- function(shape = NULL, gee.user = NULL, gcs.bucket = NULL){
   # require(terra)
   require(factoextra)
   # require(dplyr)
@@ -72,3 +72,6 @@ zoning <- function(shape = NULL, gee.user = NULL, gcs.bucket = NULL, dest.path =
   output <- terra::mask(terra::rast(knr.w), mask, inverse = TRUE)
   terra::writeRaster(output, "output.tif", overwrite = TRUE)
 }
+
+# Example
+# zoning(shape = "path/to/aoi.shp", gee.user = "validated_gee_user@gmail.com", gcs.bucket = "GCS_bucket")
