@@ -23,7 +23,7 @@ zoning <- function(shape = NULL, gee.user = NULL, gcs.bucket = NULL){
   # Create stack
   cube <- raster::stack()
   for (layer in inputs) {cube <- raster::addLayer(cube, layer)}
-
+  
   set.seed(29)
   klust_samp <- raster::sampleRandom(cube, raster::ncell(cube)/5) # Extract 20% of values in each variable
   
